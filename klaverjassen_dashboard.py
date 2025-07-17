@@ -93,12 +93,17 @@ with st.expander("📜 Round History"):
 
 # Handle round deletion safely outside the loop
 if st.session_state.round_to_delete is not None:
-    i = st.session_state.round_to_delete
-    p1, p2 = st.session_state.history.pop(i)
-    st.session_state.player1_score -= p1
-    st.session_state.player2_score -= p2
-    st.session_state.round_to_delete = None
-    st.experimental_rerun()
+    try:
+        i = st.session_state.round_to_delete
+        if 0 <= i < len(st.session_state.history):
+            p1, p2 = st.session_state.history.pop(i)
+            st.session_state.player1_score -= p1
+            st.session_state.player2_score -= p2
+    except Exception as e:
+        st.warning(f"Error deleting round: {e}")
+    finally:
+        st.session_state.round_to_delete = None
+        st.experimental_rerun()
 
 # Reset game button
 st.markdown("---")
