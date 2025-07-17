@@ -1,4 +1,4 @@
-[12:51, 7/17/2025] Faruk Goruroglu: import streamlit as st
+import streamlit as st
 
 # Handle reset mode
 if 'reset_mode' in st.session_state:
