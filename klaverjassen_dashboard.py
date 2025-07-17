@@ -1,3 +1,4 @@
+
 import streamlit as st
 
 # Initialize session state variables
@@ -45,6 +46,7 @@ if not st.session_state.names_set:
                 st.session_state.player1_name = p1_name.strip()
                 st.session_state.player2_name = p2_name.strip()
                 st.session_state.names_set = True
+                st.experimental_rerun()  # Force rerun to reflect updated state
             else:
                 st.warning("Please enter both player names.")
     st.stop()
