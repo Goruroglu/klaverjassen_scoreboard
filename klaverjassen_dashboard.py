@@ -57,7 +57,6 @@ player2 = st.session_state.player2_name
 
 st.markdown(f"Reach **1000 points** to win the game. Good luck, {player1} and {player2}!")
 
-
 # Score input form per round
 with st.form("score_form"):
     st.markdown("### Enter Round Score")
@@ -67,11 +66,11 @@ with st.form("score_form"):
     if scorer == player1:
         p1_score = st.number_input(f"{player1}'s Score", min_value=0, max_value=162, step=1, key="score_input_player1")
         p2_score = 162 - p1_score
-        st.number_input(f"{player2}'s Score", value=p2_score, disabled=True, key="score_display_player2")
+        st.markdown(f"**{player2}'s Score:** {p2_score}")
     else:
         p2_score = st.number_input(f"{player2}'s Score", min_value=0, max_value=162, step=1, key="score_input_player2")
         p1_score = 162 - p2_score
-        st.number_input(f"{player1}'s Score", value=p1_score, disabled=True, key="score_display_player1")
+        st.markdown(f"**{player1}'s Score:** {p1_score}")
 
     submitted = st.form_submit_button("Add Round Scores")
 
