@@ -15,10 +15,30 @@ if 'names_set' not in st.session_state:
     st.session_state.names_set = False
 if 'round_to_delete' not in st.session_state:
     st.session_state.round_to_delete = None
+if 'reset_mode' not in st.session_state:
+    st.session_state.reset_mode = None
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
 st.title("🃏 Klaverjassen Scoreboard")
+
+# Handle reset mode
+if st.session_state.reset_mode == "same":
+    st.session_state.player1_score = 0
+    st.session_state.player2_score = 0
+    st.session_state.history = []
+    st.session_state.round_to_delete = None
+    st.session_state.reset_mode = None
+
+elif st.session_state.reset_mode == "new":
+    st.session_state.player1_score = 0
+    st.session_state.player2_score = 0
+    st.session_state.history = []
+    st.session_state.player1_name = ""
+    st.session_state.player2_name = ""
+    st.session_state.names_set = False
+    st.session_state.round_to_delete = None
+    st.session_state.reset_mode = None
 
 # Player names input form
 if not st.session_state.names_set:
@@ -90,13 +110,17 @@ if st.session_state.round_to_delete is not None:
 # Reset game button
 st.markdown("---")
 if st.button("🔄 Reset Whole Game"):
-    st.session_state.player1_score = 0
-    st.session_state.player2_score = 0
-    st.session_state.history = []
-    st.session_state.names_set = False
-    st.session_state.player1_name = ""
-    st.session_state.player2_name = ""
-    st.session_state.round_to_delete = None
+    st.session_state.reset_mode = None
+    st.info("Do you want to reset the game with the same players or enter new players?")
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("🔁 Same Players"):
+            st.session_state.reset_mode = "same"
+            st.experimental_rerun()
+    with col2:
+        if st.button("👥 New Players"):
+            st.session_state.reset_mode = "new"
+            st.experimental_rerun()
 
 # Footer
 st.markdown("Made with ❤️ using Streamlit")
