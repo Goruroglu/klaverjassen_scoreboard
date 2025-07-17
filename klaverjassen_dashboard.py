@@ -15,9 +15,19 @@ if 'names_set' not in st.session_state:
     st.session_state.names_set = False
 if 'round_to_delete' not in st.session_state:
     st.session_state.round_to_delete = None
+if 'trigger_rerun' not in st.session_state:
+    st.session_state.trigger_rerun = False
+if 'reset_requested' not in st.session_state:
+    st.session_state.reset_requested = False
 
-# Reset function
-def reset_game():
+# Handle safe rerun trigger
+if st.session_state.trigger_rerun:
+    st.session_state.trigger_rerun = False
+    st.experimental_rerun()
+
+# Handle safe reset trigger
+if st.session_state.reset_requested:
+    st.session_state.reset_requested = False
     st.session_state.player1_score = 0
     st.session_state.player2_score = 0
     st.session_state.history = []
@@ -25,6 +35,7 @@ def reset_game():
     st.session_state.player1_name = ""
     st.session_state.player2_name = ""
     st.session_state.round_to_delete = None
+    st.experimental_rerun()
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -42,6 +53,7 @@ if not st.session_state.names_set:
                 st.session_state.player1_name = p1_name.strip()
                 st.session_state.player2_name = p2_name.strip()
                 st.session_state.names_set = True
+                st.session_state.trigger_rerun = True
             else:
                 st.warning("Please enter both player names.")
     st.stop()
@@ -86,8 +98,9 @@ with st.expander("📜 Round History"):
         col2.write(f"{player2} - {p2}")
         if col3.button("❌", key=f"delete_{i}"):
             st.session_state.round_to_delete = i
+            st.session_state.trigger_rerun = True
 
-# Handle round deletion after rendering
+# Handle round deletion
 if st.session_state.round_to_delete is not None:
     i = st.session_state.round_to_delete
     if 0 <= i < len(st.session_state.history):
@@ -95,13 +108,11 @@ if st.session_state.round_to_delete is not None:
         st.session_state.player1_score -= p1
         st.session_state.player2_score -= p2
     st.session_state.round_to_delete = None
-    st.experimental_rerun()
 
 # Reset game button
 st.markdown("---")
 if st.button("🔄 Reset Whole Game"):
-    reset_game()
-    st.experimental_rerun()
+    st.session_state.reset_requested = True
 
 # Footer
 st.markdown("Made with ❤️ using Streamlit")
