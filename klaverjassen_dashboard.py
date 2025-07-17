@@ -1,9 +1,5 @@
 import streamlit as st
 
-# Safe rerun trigger
-if 'trigger_rerun' not in st.session_state:
-    st.session_state.trigger_rerun = False
-
 # Handle reset mode
 if 'reset_mode' in st.session_state:
     if st.session_state.reset_mode == "same":
@@ -13,10 +9,8 @@ if 'reset_mode' in st.session_state:
         st.session_state.round_to_delete = None
         st.session_state.reset_mode = None
         st.session_state.show_reset_options = False
-        st.session_state.trigger_rerun = True
     elif st.session_state.reset_mode == "new":
         st.session_state.clear()
-        st.session_state.trigger_rerun = True
 
 # Initialize session state variables
 if 'player1_score' not in st.session_state:
@@ -126,8 +120,3 @@ if st.session_state.show_reset_options:
 
 # Footer
 st.markdown("Made with ❤️ using Streamlit")
-
-# ✅ Safe rerun at the end
-if st.session_state.trigger_rerun:
-    st.session_state.trigger_rerun = False
-    st.experimental_rerun()
