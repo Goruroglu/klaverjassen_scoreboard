@@ -15,10 +15,6 @@ if 'names_set' not in st.session_state:
     st.session_state.names_set = False
 if 'round_to_delete' not in st.session_state:
     st.session_state.round_to_delete = None
-if 'trigger_rerun' not in st.session_state:
-    st.session_state.trigger_rerun = False
-if 'reset_requested' not in st.session_state:
-    st.session_state.reset_requested = False
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -36,7 +32,6 @@ if not st.session_state.names_set:
                 st.session_state.player1_name = p1_name.strip()
                 st.session_state.player2_name = p2_name.strip()
                 st.session_state.names_set = True
-                st.session_state.trigger_rerun = True
             else:
                 st.warning("Please enter both player names.")
     st.stop()
@@ -58,9 +53,12 @@ with st.form("score_form"):
     submitted = st.form_submit_button("Add Round Scores")
 
     if submitted:
-        st.session_state.player1_score += p1_score
-        st.session_state.player2_score += p2_score
-        st.session_state.history.append((p1_score, p2_score))
+        if p1_score > 162:
+            st.warning("Player 1's score cannot exceed 162.")
+        else:
+            st.session_state.player1_score += p1_score
+            st.session_state.player2_score += 162 - p1_score
+            st.session_state.history.append((p1_score, 162 - p1_score))
 
 # Show current scores
 st.subheader("Current Scores")
@@ -81,7 +79,6 @@ with st.expander("📜 Round History"):
         col2.write(f"{player2} - {p2}")
         if col3.button("❌", key=f"delete_{i}"):
             st.session_state.round_to_delete = i
-            st.session_state.trigger_rerun = True
 
 # Handle round deletion
 if st.session_state.round_to_delete is not None:
@@ -95,16 +92,13 @@ if st.session_state.round_to_delete is not None:
 # Reset game button
 st.markdown("---")
 if st.button("🔄 Reset Whole Game"):
-    st.session_state.reset_requested = True
+    st.session_state.player1_score = 0
+    st.session_state.player2_score = 0
+    st.session_state.history = []
+    st.session_state.names_set = False
+    st.session_state.player1_name = ""
+    st.session_state.player2_name = ""
+    st.session_state.round_to_delete = None
 
 # Footer
 st.markdown("Made with ❤️ using Streamlit")
-
-# 🔁 Safe rerun trigger at the very end
-if st.session_state.reset_requested:
-    st.session_state.reset_requested = False
-    st.experimental_rerun()
-
-if st.session_state.trigger_rerun:
-    st.session_state.trigger_rerun = False
-    st.experimental_rerun()
