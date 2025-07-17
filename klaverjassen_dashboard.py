@@ -83,25 +83,21 @@ if st.session_state.player1_score >= 1000 or st.session_state.player2_score >= 1
 
 # Round history with delete buttons
 with st.expander("📜 Round History"):
-    for i in range(len(st.session_state.history)):
-        p1, p2 = st.session_state.history[i]
+    for i, (p1, p2) in enumerate(st.session_state.history):
         col1, col2, col3 = st.columns([3, 3, 1])
         col1.write(f"Round {i + 1}: {player1} - {p1}")
         col2.write(f"{player2} - {p2}")
         if col3.button("❌", key=f"delete_{i}"):
             st.session_state.round_to_delete = i
-            st.session_state.deletion_requested = True
-            st.experimental_rerun()
 
-# Handle round deletion
-if st.session_state.deletion_requested:
+# Handle round deletion after rendering
+if st.session_state.round_to_delete is not None:
     i = st.session_state.round_to_delete
     if 0 <= i < len(st.session_state.history):
         p1, p2 = st.session_state.history.pop(i)
         st.session_state.player1_score -= p1
         st.session_state.player2_score -= p2
     st.session_state.round_to_delete = None
-    st.session_state.deletion_requested = False
     st.experimental_rerun()
 
 # Reset game button
