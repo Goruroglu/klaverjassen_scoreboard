@@ -20,23 +20,6 @@ if 'trigger_rerun' not in st.session_state:
 if 'reset_requested' not in st.session_state:
     st.session_state.reset_requested = False
 
-# Handle safe rerun trigger
-if st.session_state.trigger_rerun:
-    st.session_state.trigger_rerun = False
-    st.experimental_rerun()
-
-# Handle safe reset trigger
-if st.session_state.reset_requested:
-    st.session_state.reset_requested = False
-    st.session_state.player1_score = 0
-    st.session_state.player2_score = 0
-    st.session_state.history = []
-    st.session_state.names_set = False
-    st.session_state.player1_name = ""
-    st.session_state.player2_name = ""
-    st.session_state.round_to_delete = None
-    st.experimental_rerun()
-
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
 st.title("🃏 Klaverjassen Scoreboard")
@@ -116,3 +99,12 @@ if st.button("🔄 Reset Whole Game"):
 
 # Footer
 st.markdown("Made with ❤️ using Streamlit")
+
+# 🔁 Safe rerun trigger at the very end
+if st.session_state.reset_requested:
+    st.session_state.reset_requested = False
+    st.experimental_rerun()
+
+if st.session_state.trigger_rerun:
+    st.session_state.trigger_rerun = False
+    st.experimental_rerun()
