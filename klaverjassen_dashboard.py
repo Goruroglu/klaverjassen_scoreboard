@@ -15,7 +15,10 @@ if 'names_set' not in st.session_state:
     st.session_state.names_set = False
 if 'round_to_delete' not in st.session_state:
     st.session_state.round_to_delete = None
+if 'deletion_requested' not in st.session_state:
+    st.session_state.deletion_requested = False
 
+# Reset function
 def reset_game():
     st.session_state.player1_score = 0
     st.session_state.player2_score = 0
@@ -24,6 +27,7 @@ def reset_game():
     st.session_state.player1_name = ""
     st.session_state.player2_name = ""
     st.session_state.round_to_delete = None
+    st.session_state.deletion_requested = False
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -89,8 +93,8 @@ with st.expander("📜 Round History"):
             st.session_state.deletion_requested = True
             st.experimental_rerun()
 
-# Handle round deletion outside the loop safely
-if st.session_state.get("deletion_requested", False):
+# Handle round deletion
+if st.session_state.deletion_requested:
     i = st.session_state.round_to_delete
     if 0 <= i < len(st.session_state.history):
         p1, p2 = st.session_state.history.pop(i)
