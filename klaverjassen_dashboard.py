@@ -31,6 +31,8 @@ if 'reset_mode' not in st.session_state:
     st.session_state.reset_mode = None
 if 'show_reset_options' not in st.session_state:
     st.session_state.show_reset_options = False
+if 'attempted_submit' not in st.session_state:
+    st.session_state.attempted_submit = False
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -57,30 +59,38 @@ player2 = st.session_state.player2_name
 
 st.markdown(f"Reach **1000 points** to win the game. Good luck, {player1} and {player2}!")
 
-# Score input form per round
-with st.form("score_form"):
-    st.markdown("### Enter Round Score")
+# Score input section
+st.markdown("### Enter Round Score")
 
-    scorer = st.radio("Who is entering the score?", [player1, player2], horizontal=True, key="scorer_choice")
+scorer = st.radio("Who is entering the score?", [player1, player2], horizontal=True, key="scorer_choice")
 
-    if scorer == player1:
-        p1_score = st.number_input(f"{player1}'s Score", min_value=0, max_value=162, step=1, key="score_input_player1")
-        p2_score = 162 - p1_score
-        st.markdown(f"**{player2}'s Score:** {p2_score}")
+# Score input and dynamic label
+if scorer == player1:
+    p1_score = st.number_input(f"{player1}'s Score", min_value=0, max_value=162, step=1, key="score_input_player1")
+    p2_score = 162 - p1_score
+    st.markdown(f"**{player2}'s Score:** {p2_score}")
+else:
+    p2_score = st.number_input(f"{player2}'s Score", min_value=0, max_value=162, step=1, key="score_input_player2")
+    p1_score = 162 - p2_score
+    st.markdown(f"**{player1}'s Score:** {p1_score}")
+
+# Submit button
+submitted = st.button("Add Round Scores")
+
+# Handle submission
+if submitted:
+    st.session_state.attempted_submit = True
+    if p1_score + p2_score != 162:
+        st.warning("Invalid round. The total score must be exactly 162.")
     else:
-        p2_score = st.number_input(f"{player2}'s Score", min_value=0, max_value=162, step=1, key="score_input_player2")
-        p1_score = 162 - p2_score
-        st.markdown(f"**{player1}'s Score:** {p1_score}")
+        st.session_state.player1_score += p1_score
+        st.session_state.player2_score += p2_score
+        st.session_state.history.append((p1_score, p2_score))
+        st.session_state.attempted_submit = False  # Reset after successful submit
 
-    submitted = st.form_submit_button("Add Round Scores")
-
-    if submitted:
-        if p1_score + p2_score != 162:
-            st.warning("Invalid round. The total score must be exactly 162.")
-        else:
-            st.session_state.player1_score += p1_score
-            st.session_state.player2_score += p2_score
-            st.session_state.history.append((p1_score, p2_score))
+# Optional: live feedback if user tried to submit and score is still invalid
+if st.session_state.attempted_submit and (p1_score + p2_score != 162):
+    st.error("⚠️ Total must be 162. Please adjust the score.")
 
 # Show current scores
 st.subheader("Current Scores")
