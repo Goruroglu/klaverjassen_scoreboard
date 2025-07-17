@@ -13,26 +13,22 @@ if 'reset_mode' in st.session_state:
         st.session_state.clear()
 
 # Initialize session state variables
-if 'player1_score' not in st.session_state:
-    st.session_state.player1_score = 0
-if 'player2_score' not in st.session_state:
-    st.session_state.player2_score = 0
-if 'history' not in st.session_state:
-    st.session_state.history = []
-if 'player1_name' not in st.session_state:
-    st.session_state.player1_name = ""
-if 'player2_name' not in st.session_state:
-    st.session_state.player2_name = ""
-if 'names_set' not in st.session_state:
-    st.session_state.names_set = False
-if 'round_to_delete' not in st.session_state:
-    st.session_state.round_to_delete = None
-if 'reset_mode' not in st.session_state:
-    st.session_state.reset_mode = None
-if 'show_reset_options' not in st.session_state:
-    st.session_state.show_reset_options = False
-if 'attempted_submit' not in st.session_state:
-    st.session_state.attempted_submit = False
+for key, default in {
+    'player1_score': 0,
+    'player2_score': 0,
+    'history': [],
+    'player1_name': "",
+    'player2_name': "",
+    'names_set': False,
+    'round_to_delete': None,
+    'reset_mode': None,
+    'show_reset_options': False,
+    'attempted_submit': False,
+    'score_input_player1': 0,
+    'score_input_player2': 0
+}.items():
+    if key not in st.session_state:
+        st.session_state[key] = default
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -86,7 +82,10 @@ if submitted:
         st.session_state.player1_score += p1_score
         st.session_state.player2_score += p2_score
         st.session_state.history.append((p1_score, p2_score))
-        st.session_state.attempted_submit = False  # Reset after successful submit
+        st.session_state.attempted_submit = False
+        # Reset input fields
+        st.session_state.score_input_player1 = 0
+        st.session_state.score_input_player2 = 0
 
 # Optional: live feedback if user tried to submit and score is still invalid
 if st.session_state.attempted_submit and (p1_score + p2_score != 162):
