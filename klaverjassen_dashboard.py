@@ -76,10 +76,19 @@ if st.session_state.player1_score >= 1000 or st.session_state.player2_score >= 1
     winner = player1 if st.session_state.player1_score >= 1000 else player2
     st.success(f"🎉 {winner} has won the game!")
 
-# Score history
+# Score history with delete buttons
 with st.expander("📜 Round History"):
     for i, (p1, p2) in enumerate(st.session_state.history, 1):
-        st.write(f"Round {i}: {player1} - {p1} | {player2} - {p2}")
+        col1, col2, col3 = st.columns([3, 3, 1])
+        col1.write(f"Round {i}: {player1} - {p1}")
+        col2.write(f"{player2} - {p2}")
+        if col3.button("❌", key=f"delete_{i}"):
+            # Adjust scores
+            st.session_state.player1_score -= p1
+            st.session_state.player2_score -= p2
+            # Remove from history
+            st.session_state.history.pop(i - 1)
+            st.experimental_rerun()
 
 # Reset button
 st.markdown("---")
