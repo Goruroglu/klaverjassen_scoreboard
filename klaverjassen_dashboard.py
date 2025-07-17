@@ -53,8 +53,8 @@ with st.form("score_form"):
     submitted = st.form_submit_button("Add Round Scores")
 
     if submitted:
-        if p1_score > 162:
-            st.warning("Player 1's score cannot exceed 162.")
+        if p1_score < 0 or p1_score > 162:
+            st.warning("Invalid score. Player 1's score must be between 0 and 162.")
         else:
             st.session_state.player1_score += p1_score
             st.session_state.player2_score += 162 - p1_score
