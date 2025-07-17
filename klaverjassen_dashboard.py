@@ -58,9 +58,9 @@ st.markdown("### Enter Round Score")
 with st.form("score_form"):
     scorer = st.radio("Who is entering the score?", [player1, player2], horizontal=True)
 
-    # Use a single input field with dynamic label
+    # Use a temporary variable for input
     score_input = st.number_input(
-        f"{scorer}'s Score", min_value=0, max_value=162, step=1, key="score_input"
+        f"{scorer}'s Score", min_value=0, max_value=162, step=1
     )
 
     # Calculate the other player's score
@@ -82,7 +82,6 @@ with st.form("score_form"):
             st.session_state.player1_score += p1_score
             st.session_state.player2_score += p2_score
             st.session_state.history.append((p1_score, p2_score))
-            st.session_state.score_input = 0  # Reset input
 
 # Show current scores
 st.subheader("Current Scores")
