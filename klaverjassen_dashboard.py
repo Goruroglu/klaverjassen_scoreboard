@@ -1,5 +1,16 @@
 import streamlit as st
 
+# Handle reset mode immediately
+if 'reset_mode' in st.session_state:
+    if st.session_state.reset_mode == "same":
+        st.session_state.player1_score = 0
+        st.session_state.player2_score = 0
+        st.session_state.history = []
+        st.session_state.round_to_delete = None
+        st.session_state.reset_mode = None
+    elif st.session_state.reset_mode == "new":
+        st.session_state.clear()
+
 # Initialize session state variables
 if 'player1_score' not in st.session_state:
     st.session_state.player1_score = 0
@@ -21,24 +32,6 @@ if 'reset_mode' not in st.session_state:
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
 st.title("🃏 Klaverjassen Scoreboard")
-
-# Handle reset mode
-if st.session_state.reset_mode == "same":
-    st.session_state.player1_score = 0
-    st.session_state.player2_score = 0
-    st.session_state.history = []
-    st.session_state.round_to_delete = None
-    st.session_state.reset_mode = None
-
-elif st.session_state.reset_mode == "new":
-    st.session_state.player1_score = 0
-    st.session_state.player2_score = 0
-    st.session_state.history = []
-    st.session_state.player1_name = ""
-    st.session_state.player2_name = ""
-    st.session_state.names_set = False
-    st.session_state.round_to_delete = None
-    st.session_state.reset_mode = None
 
 # Player names input form
 if not st.session_state.names_set:
@@ -116,11 +109,9 @@ if st.button("🔄 Reset Whole Game"):
     with col1:
         if st.button("🔁 Same Players"):
             st.session_state.reset_mode = "same"
-            st.experimental_rerun()
     with col2:
         if st.button("👥 New Players"):
             st.session_state.reset_mode = "new"
-            st.experimental_rerun()
 
 # Footer
 st.markdown("Made with ❤️ using Streamlit")
