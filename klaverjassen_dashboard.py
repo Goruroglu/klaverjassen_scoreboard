@@ -102,8 +102,10 @@ if st.session_state.player1_score >= 1000 or st.session_state.player2_score >= 1
     winner = player1 if st.session_state.player1_score >= 1000 else player2
     st.success(f"🎉 {winner} has won the game!")
 
-# Round history with delete buttons
-with st.expander("📜 Round History"):
+# Round history with delete buttons (expanded by default)
+with st.expander("📜 Round History", expanded=True):
+    if not st.session_state.history:
+        st.info("No rounds added yet.")
     for i, (p1, p2) in enumerate(st.session_state.history):
         col1, col2, col3 = st.columns([3, 3, 1])
         col1.write(f"Round {i + 1}: {player1} - {p1}")
