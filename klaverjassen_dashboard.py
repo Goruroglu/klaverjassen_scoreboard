@@ -1,6 +1,6 @@
 import streamlit as st
 
-# Initialize session state
+# Initialize session state variables
 if 'player1_score' not in st.session_state:
     st.session_state.player1_score = 0
 if 'player2_score' not in st.session_state:
@@ -13,6 +13,8 @@ if 'player2_name' not in st.session_state:
     st.session_state.player2_name = ""
 if 'names_set' not in st.session_state:
     st.session_state.names_set = False
+if 'round_to_delete' not in st.session_state:
+    st.session_state.round_to_delete = None
 
 def reset_game():
     st.session_state.player1_score = 0
@@ -21,66 +23,64 @@ def reset_game():
     st.session_state.names_set = False
     st.session_state.player1_name = ""
     st.session_state.player2_name = ""
+    st.session_state.round_to_delete = None
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
 st.title("🃏 Klaverjassen Scoreboard")
 
-# Set player names
+# Player names input form
 if not st.session_state.names_set:
     st.subheader("Enter Player Names")
     with st.form("name_form"):
         p1_name = st.text_input("Player 1 Name", key="p1_name")
         p2_name = st.text_input("Player 2 Name", key="p2_name")
         start_game = st.form_submit_button("Start Game")
-        if start_game and p1_name.strip() and p2_name.strip():
-            st.session_state.player1_name = p1_name.strip()
-            st.session_state.player2_name = p2_name.strip()
-            st.session_state.names_set = True
-        elif start_game:
-            st.warning("Please enter both player names.")
+        if start_game:
+            if p1_name.strip() and p2_name.strip():
+                st.session_state.player1_name = p1_name.strip()
+                st.session_state.player2_name = p2_name.strip()
+                st.session_state.names_set = True
+            else:
+                st.warning("Please enter both player names.")
     st.stop()
 
 player1 = st.session_state.player1_name
 player2 = st.session_state.player2_name
 
-st.markdown(f"Reach **1000 points** to win the game. Enjoy, {player1} and {player2}!")
+st.markdown(f"Reach *1000 points* to win the game. Good luck, {player1} and {player2}!")
 
-# Score input form
+# Score input form per round
 with st.form("score_form"):
     col1, col2 = st.columns(2)
     with col1:
-        p1 = st.number_input(f"{player1} Round Score", min_value=0, max_value=162, step=1, key="p1_input")
+        p1_score = st.number_input(f"{player1} Round Score", min_value=0, max_value=162, step=1, key="p1_input")
     with col2:
-        p2 = 162 - p1
-        st.number_input(f"{player2} Round Score", value=p2, disabled=True, key="p2_display")
+        p2_score = 162 - p1_score
+        st.number_input(f"{player2} Round Score", value=p2_score, disabled=True, key="p2_display")
 
     submitted = st.form_submit_button("Add Round Scores")
 
     if submitted:
-        if p1 > 162:
+        if p1_score > 162:
             st.error("The total round score cannot exceed 162 points.")
         else:
-            st.session_state.player1_score += p1
-            st.session_state.player2_score += 162 - p1
-            st.session_state.history.append((p1, 162 - p1))
+            st.session_state.player1_score += p1_score
+            st.session_state.player2_score += p2_score
+            st.session_state.history.append((p1_score, p2_score))
 
-# Display current scores
+# Show current scores
 st.subheader("Current Scores")
 score_cols = st.columns(2)
 score_cols[0].metric(player1, st.session_state.player1_score)
 score_cols[1].metric(player2, st.session_state.player2_score)
 
-# Display winner
+# Show winner if any
 if st.session_state.player1_score >= 1000 or st.session_state.player2_score >= 1000:
     winner = player1 if st.session_state.player1_score >= 1000 else player2
     st.success(f"🎉 {winner} has won the game!")
 
-# Initialize 'round_to_delete' to None if not present
-if 'round_to_delete' not in st.session_state:
-    st.session_state.round_to_delete = None
-
-# Score history with delete buttons
+# Round history with delete buttons
 with st.expander("📜 Round History"):
     for i in range(len(st.session_state.history)):
         p1, p2 = st.session_state.history[i]
@@ -89,9 +89,9 @@ with st.expander("📜 Round History"):
         col2.write(f"{player2} - {p2}")
         if col3.button("❌", key=f"delete_{i}"):
             st.session_state.round_to_delete = i
-            st.experimental_rerun()
+            break
 
-# Handle deletion outside the loop safely
+# Handle round deletion safely outside the loop
 if st.session_state.round_to_delete is not None:
     i = st.session_state.round_to_delete
     p1, p2 = st.session_state.history.pop(i)
@@ -99,13 +99,12 @@ if st.session_state.round_to_delete is not None:
     st.session_state.player2_score -= p2
     st.session_state.round_to_delete = None
     st.experimental_rerun()
-    
-# Reset button
+
+# Reset game button
 st.markdown("---")
 if st.button("🔄 Reset Whole Game"):
     reset_game()
     st.experimental_rerun()
 
 # Footer
-st.markdown("---")
 st.markdown("Made with ❤️ using Streamlit")
