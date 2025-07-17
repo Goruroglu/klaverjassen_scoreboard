@@ -1,7 +1,6 @@
-
 import streamlit as st
 
-# Reset logic
+# Handle reset mode
 if 'reset_mode' in st.session_state:
     if st.session_state.reset_mode == "same":
         st.session_state.player1_score = 0
@@ -13,123 +12,111 @@ if 'reset_mode' in st.session_state:
     elif st.session_state.reset_mode == "new":
         st.session_state.clear()
 
-# Initialize session state
-for key, default in {
-    'player1_score': 0,
-    'player2_score': 0,
-    'history': [],
-    'player1_name': "",
-    'player2_name': "",
-    'names_set': False,
-    'round_to_delete': None,
-    'reset_mode': None,
-    'show_reset_options': False,
-}.items():
-    if key not in st.session_state:
-        st.session_state[key] = default
+# Initialize session state variables
+if 'player1_score' not in st.session_state:
+    st.session_state.player1_score = 0
+if 'player2_score' not in st.session_state:
+    st.session_state.player2_score = 0
+if 'history' not in st.session_state:
+    st.session_state.history = []
+if 'player1_name' not in st.session_state:
+    st.session_state.player1_name = ""
+if 'player2_name' not in st.session_state:
+    st.session_state.player2_name = ""
+if 'names_set' not in st.session_state:
+    st.session_state.names_set = False
+if 'round_to_delete' not in st.session_state:
+    st.session_state.round_to_delete = None
+if 'reset_mode' not in st.session_state:
+    st.session_state.reset_mode = None
+if 'show_reset_options' not in st.session_state:
+    st.session_state.show_reset_options = False
 
-# Layout
-st.set_page_config(page_title="Klaverjassen", layout="centered")
-st.markdown("<h1 style='text-align: center;'>🃏 Klaverjassen Scoreboard</h1>", unsafe_allow_html=True)
+# App title and layout
+st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
+st.title("🃏 Klaverjassen Scoreboard")
 
-# Player names
+# Player names input form
 if not st.session_state.names_set:
+    st.subheader("Enter Player Names")
     with st.form("name_form"):
-        p1 = st.text_input("Player 1 Name")
-        p2 = st.text_input("Player 2 Name")
-        if st.form_submit_button("Start"):
-            if p1.strip() and p2.strip():
-                st.session_state.player1_name = p1.strip()
-                st.session_state.player2_name = p2.strip()
-                st.session_state.player1_score = 0
-                st.session_state.player2_score = 0
-                st.session_state.history = []
+        p1_name = st.text_input("Player 1 Name")
+        p2_name = st.text_input("Player 2 Name")
+        start_game = st.form_submit_button("Start Game")
+        if start_game:
+            if p1_name.strip() and p2_name.strip():
+                st.session_state.player1_name = p1_name.strip()
+                st.session_state.player2_name = p2_name.strip()
                 st.session_state.names_set = True
             else:
-                st.warning("Enter both names.")
+                st.warning("Please enter both player names.")
     st.stop()
 
 player1 = st.session_state.player1_name
 player2 = st.session_state.player2_name
 
-st.markdown(f"<p style='text-align: center;'>First to <strong>1000 points</strong> wins. Good luck, <strong>{player1}</strong> and <strong>{player2}</strong>!</p>", unsafe_allow_html=True)
+st.markdown(f"Reach **1000 points** to win the game. Good luck, {player1} and {player2}!")
 
-# Score input
+# Score input form per round
 with st.form("score_form"):
-    scorer = st.radio("Select player to enter score:", [player1, player2], horizontal=True)
+    st.markdown("### Enter Round Score")
+    p1_score = st.number_input(f"{player1}'s Score", min_value=0, step=1)
+    p2_score = 162 - p1_score
+    st.number_input(f"{player2}'s Score", value=p2_score, disabled=True)
 
-    st.markdown(
-        f"<div style='text-align:center; font-size:18px; margin-top:10px;'>"
-        f"<strong>Enter score for {scorer}</strong></div>",
-        unsafe_allow_html=True
-    )
+    submitted = st.form_submit_button("Add Round Scores")
 
-    col = st.columns([1, 2, 1])[1]  # Centered column
-    with col:
-        score = st.number_input(
-            "", min_value=0, max_value=162, step=1, label_visibility="collapsed"
-        )
-
-    if scorer == player1:
-        p1_score = score
-        p2_score = 162 - score
-    else:
-        p2_score = score
-        p1_score = 162 - score
-
-    st.markdown(
-        f"<div style='text-align:center; font-size:16px;'>"
-        f"<strong>{player1}:</strong> {p1_score} &nbsp;&nbsp;&nbsp; "
-        f"<strong>{player2}:</strong> {p2_score}</div>",
-        unsafe_allow_html=True
-    )
-
-    if st.form_submit_button("✅ Add Round"):
-        if p1_score + p2_score != 162:
-            st.error("Total must be exactly 162.")
+    if submitted:
+        if p1_score > 162:
+            st.warning("Invalid score. Player 1's score cannot exceed 162.")
         else:
             st.session_state.player1_score += p1_score
             st.session_state.player2_score += p2_score
             st.session_state.history.append((p1_score, p2_score))
 
-# Scores
-st.subheader("📊 Current Scores")
-cols = st.columns(2)
-cols[0].metric(player1, st.session_state.player1_score)
-cols[1].metric(player2, st.session_state.player2_score)
+# Show current scores
+st.subheader("Current Scores")
+score_cols = st.columns(2)
+score_cols[0].metric(player1, st.session_state.player1_score)
+score_cols[1].metric(player2, st.session_state.player2_score)
 
-# Winner
+# Show winner if any
 if st.session_state.player1_score >= 1000 or st.session_state.player2_score >= 1000:
     winner = player1 if st.session_state.player1_score >= 1000 else player2
     st.success(f"🎉 {winner} has won the game!")
 
-# History
-st.subheader("📜 Round History")
-if not st.session_state.history:
-    st.info("No rounds yet.")
-else:
+# Round history with delete buttons
+with st.expander("📜 Round History"):
     for i, (p1, p2) in enumerate(st.session_state.history):
         col1, col2, col3 = st.columns([3, 3, 1])
-        col1.write(f"{player1}: {p1}")
-        col2.write(f"{player2}: {p2}")
-        if col3.button("❌", key=f"del_{i}"):
-            st.session_state.player1_score -= p1
-            st.session_state.player2_score -= p2
-            st.session_state.history.pop(i)
-            st.experimental_rerun()
+        col1.write(f"Round {i + 1}: {player1} - {p1}")
+        col2.write(f"{player2} - {p2}")
+        if col3.button("❌", key=f"delete_{i}"):
+            st.session_state.round_to_delete = i
 
-# Reset options
+# Handle round deletion
+if st.session_state.round_to_delete is not None:
+    i = st.session_state.round_to_delete
+    if 0 <= i < len(st.session_state.history):
+        p1, p2 = st.session_state.history.pop(i)
+        st.session_state.player1_score -= p1
+        st.session_state.player2_score -= p2
+    st.session_state.round_to_delete = None
+
+# Reset game button
 st.markdown("---")
-if st.button("🔄 Reset Game"):
+if st.button("🔄 Reset Whole Game"):
     st.session_state.show_reset_options = True
 
 if st.session_state.show_reset_options:
-    st.info("Reset with same players or start fresh?")
+    st.info("Do you want to reset the game with the same players or enter new players?")
     col1, col2 = st.columns(2)
-    if col1.button("🔁 Same Players"):
-        st.session_state.reset_mode = "same"
-    if col2.button("👥 New Players"):
-        st.session_state.reset_mode = "new"
+    with col1:
+        if st.button("🔁 Same Players"):
+            st.session_state.reset_mode = "same"
+    with col2:
+        if st.button("👥 New Players"):
+            st.session_state.reset_mode = "new"
 
 # Footer
-st.markdown("<hr><p style='text-align: center;'>Made with ❤️ using Streamlit</p>", unsafe_allow_html=True)
+st.markdown("Made with ❤️ using Streamlit")
