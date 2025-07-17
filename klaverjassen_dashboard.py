@@ -76,6 +76,10 @@ if st.session_state.player1_score >= 1000 or st.session_state.player2_score >= 1
     winner = player1 if st.session_state.player1_score >= 1000 else player2
     st.success(f"🎉 {winner} has won the game!")
 
+# Initialize 'round_to_delete' to None if not present
+if 'round_to_delete' not in st.session_state:
+    st.session_state.round_to_delete = None
+
 # Score history with delete buttons
 with st.expander("📜 Round History"):
     for i in range(len(st.session_state.history)):
@@ -84,19 +88,18 @@ with st.expander("📜 Round History"):
         col1.write(f"Round {i + 1}: {player1} - {p1}")
         col2.write(f"{player2} - {p2}")
         if col3.button("❌", key=f"delete_{i}"):
-            # Store index to delete, then break
             st.session_state.round_to_delete = i
-            break
+            st.experimental_rerun()
 
-# Handle deletion outside the loop
-if 'round_to_delete' in st.session_state:
+# Handle deletion outside the loop safely
+if st.session_state.round_to_delete is not None:
     i = st.session_state.round_to_delete
     p1, p2 = st.session_state.history.pop(i)
     st.session_state.player1_score -= p1
     st.session_state.player2_score -= p2
-    del st.session_state['round_to_delete']
+    st.session_state.round_to_delete = None
     st.experimental_rerun()
-
+    
 # Reset button
 st.markdown("---")
 if st.button("🔄 Reset Whole Game"):
