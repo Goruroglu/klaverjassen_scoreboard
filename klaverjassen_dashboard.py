@@ -15,10 +15,6 @@ if 'names_set' not in st.session_state:
     st.session_state.names_set = False
 if 'round_to_delete' not in st.session_state:
     st.session_state.round_to_delete = None
-if 'deletion_requested' not in st.session_state:
-    st.session_state.deletion_requested = False
-if 'trigger_rerun' not in st.session_state:
-    st.session_state.trigger_rerun = False
 
 # Reset function
 def reset_game():
@@ -29,8 +25,6 @@ def reset_game():
     st.session_state.player1_name = ""
     st.session_state.player2_name = ""
     st.session_state.round_to_delete = None
-    st.session_state.deletion_requested = False
-    st.session_state.trigger_rerun = False
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -40,23 +34,17 @@ st.title("🃏 Klaverjassen Scoreboard")
 if not st.session_state.names_set:
     st.subheader("Enter Player Names")
     with st.form("name_form"):
-        p1_name = st.text_input("Player 1 Name", key="p1_name")
-        p2_name = st.text_input("Player 2 Name", key="p2_name")
+        p1_name = st.text_input("Player 1 Name")
+        p2_name = st.text_input("Player 2 Name")
         start_game = st.form_submit_button("Start Game")
         if start_game:
             if p1_name.strip() and p2_name.strip():
                 st.session_state.player1_name = p1_name.strip()
                 st.session_state.player2_name = p2_name.strip()
                 st.session_state.names_set = True
-                st.session_state.trigger_rerun = True
             else:
                 st.warning("Please enter both player names.")
     st.stop()
-
-# Trigger rerun safely outside the form
-if st.session_state.trigger_rerun:
-    st.session_state.trigger_rerun = False
-    st.experimental_rerun()
 
 player1 = st.session_state.player1_name
 player2 = st.session_state.player2_name
@@ -67,10 +55,10 @@ st.markdown(f"Reach **1000 points** to win the game. Good luck, {player1} and {p
 with st.form("score_form"):
     col1, col2 = st.columns(2)
     with col1:
-        p1_score = st.number_input(f"{player1} Round Score", min_value=0, max_value=162, step=1, key="p1_input")
+        p1_score = st.number_input(f"{player1} Round Score", min_value=0, max_value=162, step=1)
     with col2:
         p2_score = 162 - p1_score
-        st.number_input(f"{player2} Round Score", value=p2_score, disabled=True, key="p2_display")
+        st.number_input(f"{player2} Round Score", value=p2_score, disabled=True)
 
     submitted = st.form_submit_button("Add Round Scores")
 
