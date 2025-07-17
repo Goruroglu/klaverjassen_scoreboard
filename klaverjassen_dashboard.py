@@ -58,10 +58,16 @@ st.markdown(f"<p style='text-align: center;'>First to <strong>1000 points</stron
 with st.form("score_form"):
     scorer = st.radio("Select player to enter score:", [player1, player2], horizontal=True)
 
+    st.markdown(
+        f"<div style='text-align:center; font-size:18px; margin-top:10px;'>"
+        f"<strong>Enter score for {scorer}</strong></div>",
+        unsafe_allow_html=True
+    )
+
     col = st.columns([1, 2, 1])[1]  # Centered column
     with col:
         score = st.number_input(
-            f"{scorer}'s Score", min_value=0, max_value=162, step=1
+            "", min_value=0, max_value=162, step=1, label_visibility="collapsed"
         )
 
     if scorer == player1:
