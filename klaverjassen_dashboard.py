@@ -48,7 +48,7 @@ if not st.session_state.names_set:
 player1 = st.session_state.player1_name
 player2 = st.session_state.player2_name
 
-st.markdown(f"Reach *1000 points* to win the game. Good luck, {player1} and {player2}!")
+st.markdown(f"Reach **1000 points** to win the game. Good luck, {player1} and {player2}!")
 
 # Score input form per round
 with st.form("score_form"):
@@ -62,12 +62,9 @@ with st.form("score_form"):
     submitted = st.form_submit_button("Add Round Scores")
 
     if submitted:
-        if p1_score > 162:
-            st.error("The total round score cannot exceed 162 points.")
-        else:
-            st.session_state.player1_score += p1_score
-            st.session_state.player2_score += p2_score
-            st.session_state.history.append((p1_score, p2_score))
+        st.session_state.player1_score += p1_score
+        st.session_state.player2_score += p2_score
+        st.session_state.history.append((p1_score, p2_score))
 
 # Show current scores
 st.subheader("Current Scores")
@@ -89,21 +86,19 @@ with st.expander("📜 Round History"):
         col2.write(f"{player2} - {p2}")
         if col3.button("❌", key=f"delete_{i}"):
             st.session_state.round_to_delete = i
-            break
+            st.session_state.deletion_requested = True
+            st.experimental_rerun()
 
-# Handle round deletion safely outside the loop
-if st.session_state.round_to_delete is not None:
-    try:
-        i = st.session_state.round_to_delete
-        if 0 <= i < len(st.session_state.history):
-            p1, p2 = st.session_state.history.pop(i)
-            st.session_state.player1_score -= p1
-            st.session_state.player2_score -= p2
-    except Exception as e:
-        st.warning(f"Error deleting round: {e}")
-    finally:
-        st.session_state.round_to_delete = None
-        st.experimental_rerun()
+# Handle round deletion outside the loop safely
+if st.session_state.get("deletion_requested", False):
+    i = st.session_state.round_to_delete
+    if 0 <= i < len(st.session_state.history):
+        p1, p2 = st.session_state.history.pop(i)
+        st.session_state.player1_score -= p1
+        st.session_state.player2_score -= p2
+    st.session_state.round_to_delete = None
+    st.session_state.deletion_requested = False
+    st.experimental_rerun()
 
 # Reset game button
 st.markdown("---")
