@@ -8,8 +8,11 @@ if 'reset_mode' in st.session_state:
         st.session_state.history = []
         st.session_state.round_to_delete = None
         st.session_state.reset_mode = None
+        st.session_state.show_reset_options = False
+        st.experimental_rerun()
     elif st.session_state.reset_mode == "new":
         st.session_state.clear()
+        st.experimental_rerun()
 
 # Initialize session state variables
 if 'player1_score' not in st.session_state:
@@ -28,6 +31,8 @@ if 'round_to_delete' not in st.session_state:
     st.session_state.round_to_delete = None
 if 'reset_mode' not in st.session_state:
     st.session_state.reset_mode = None
+if 'show_reset_options' not in st.session_state:
+    st.session_state.show_reset_options = False
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -103,7 +108,9 @@ if st.session_state.round_to_delete is not None:
 # Reset game button
 st.markdown("---")
 if st.button("🔄 Reset Whole Game"):
-    st.session_state.reset_mode = None
+    st.session_state.show_reset_options = True
+
+if st.session_state.show_reset_options:
     st.info("Do you want to reset the game with the same players or enter new players?")
     col1, col2 = st.columns(2)
     with col1:
