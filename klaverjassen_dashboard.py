@@ -19,6 +19,8 @@ def reset_game():
     st.session_state.player2_score = 0
     st.session_state.history = []
     st.session_state.names_set = False
+    st.session_state.player1_name = ""
+    st.session_state.player2_name = ""
 
 # App title and layout
 st.set_page_config(page_title="Klaverjassen Scoreboard", layout="centered")
@@ -80,7 +82,10 @@ with st.expander("📜 Round History"):
         st.write(f"Round {i}: {player1} - {p1} | {player2} - {p2}")
 
 # Reset button
-st.button("🔄 Reset Game", on_click=reset_game)
+st.markdown("---")
+if st.button("🔄 Reset Whole Game"):
+    reset_game()
+    st.experimental_rerun()
 
 # Footer
 st.markdown("---")
